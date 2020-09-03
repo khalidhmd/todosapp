@@ -24,11 +24,22 @@ def index():
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
+  error = False
+  body = {}
+  try:  
     description = request.get_json()['description']
     todo = Todo(description=description)
     db.session.add(todo)
     db.session.commit()
-    return jsonify({'id':todo.id,'description':todo.description})
+    body['description'] = todo.description
+    body['id'] = todo.id
+  except:
+    error=True
+    db.session.rollback()
+  finally:
+    db.session.close()
+  if not error:
+    return jsonify(body)
 
 
 if __name__ == '__main__':

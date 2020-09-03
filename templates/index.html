@@ -33,6 +33,7 @@
         })
           .then((response) => response.json())
           .then((todo) => {
+            console.log(todo);
             const listItem = document.createElement("LI");
             listItem.innerHTML = todo["description"];
             document.getElementById("todos").appendChild(listItem);
