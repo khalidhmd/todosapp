@@ -27,18 +27,56 @@
   <ul id="todos">
     {% for d in todos %}
     <li>
-      <input class="check-completed" type="checkbox" {% if d.completed %} checked {% endif %} />{{d.description}}
+      <input class="check-completed" data-id="{{d.id}}" type="checkbox" {% if d.completed %} checked
+        {% endif %} />{{d.description}} <button class="delete-button" data-id="{{d.id}}">&cross;</button>
     </li>
     {% endfor %}
   </ul>
   <script>
     const checkBoxes = document.querySelectorAll('.check-completed')
+    const deleteButtons = document.querySelectorAll('.delete-button')
     for (let i = 0; i < checkBoxes.length; i++) {
       const checkbox = checkBoxes[i]
       checkbox.onchange = e => {
         console.log('event', e)
+        const completed = e.target.checked
+        const id = e.target.dataset.id
+        fetch("/todos/set-completed", {
+          method: "POST",
+          body: JSON.stringify({
+            "id": id,
+            "completed": completed
+          }),
+          headers: { "Content-Type": "application/json" },
+        }).then(() => {
+          document.getElementById("error").className = "hidden";
+        }).catch(e => {
+          console.log(e);
+          document.getElementById("error").className = "";
+        })
       }
     }
+
+    for (let i = 0; i < deleteButtons.length; i++) {
+      const button = deleteButtons[i]
+      button.onclick = e => {
+        console.log('event', e)
+        const id = e.target.dataset.id
+        fetch("/todos/delete", {
+          method: "POST",
+          body: JSON.stringify({
+            "id": id
+          }),
+          headers: { "Content-Type": "application/json" },
+        }).then(() => {
+          document.getElementById("error").className = "hidden";
+        }).catch(e => {
+          console.log(e);
+          document.getElementById("error").className = "";
+        })
+      }
+    }
+
     document.getElementById("form").onsubmit = (e) => {
       e.preventDefault();
       fetch("/todos/create", {
@@ -52,8 +90,26 @@
         .then((todo) => {
           console.log(todo);
           const listItem = document.createElement("LI");
-          listItem.innerHTML = todo["description"];
+          listItem.innerHTML = "<input data-id=" + todo["id"] + " class=\"check-completed\" type=\"checkbox\" />" + todo["description"] + "<button class=\"delete-button\" data-id=" + todo["id"] + ">&cross;</button>";
           document.getElementById("todos").appendChild(listItem);
+          listItem.onchange = e => {
+            console.log('event', e)
+            const completed = e.target.checked
+            const id = e.target.dataset.id
+            fetch("/todos/set-completed", {
+              method: "POST",
+              body: JSON.stringify({
+                "id": id,
+                "completed": completed
+              }),
+              headers: { "Content-Type": "application/json" },
+            }).then(() => {
+              document.getElementById("error").className = "hidden";
+            }).catch(e => {
+              console.log(e);
+              document.getElementById("error").className = "";
+            })
+          }
           document.getElementById("error").className = "hidden";
         })
         .catch((e) => {
