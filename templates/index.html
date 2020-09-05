@@ -15,23 +15,44 @@
       margin: 0;
       padding: 0;
     }
+
+    .list-wrapper,
+    .todos-wrapper {
+      display: inline-block;
+      vertical-align: top;
+    }
   </style>
 </head>
 
 <body>
-  <form id="form">
-    <input type="text" name="description" id="description" />
-    <input type="submit" value="Create" />
-  </form>
+
   <div id="error" class="hidden">An error occured</div>
-  <ul id="todos">
-    {% for d in todos %}
-    <li>
-      <input class="check-completed" data-id="{{d.id}}" type="checkbox" {% if d.completed %} checked
-        {% endif %} />{{d.description}} <button class="delete-button" data-id="{{d.id}}">&cross;</button>
-    </li>
-    {% endfor %}
-  </ul>
+  <div class="list-wrapper">
+    <ul id="lists">
+      {% for l in lists %}
+      <li>
+        <a href="/lists/{{l.id}}">{{l.name}}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="todos-wrapper">
+    <h4>{{active_list.name}}</h4>
+    <form id="form">
+      <input type="text" name="description" id="description" />
+      <input type="submit" value="Create" />
+    </form>
+
+    <ul id="todos">
+      {% for d in todos %}
+      <li>
+        <input class="check-completed" data-id="{{d.id}}" type="checkbox" {% if d.completed %} checked
+          {% endif %} />{{d.description}} <button class="delete-button" data-id="{{d.id}}">&cross;</button>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
   <script>
     const checkBoxes = document.querySelectorAll('.check-completed')
     const deleteButtons = document.querySelectorAll('.delete-button')

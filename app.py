@@ -37,7 +37,12 @@ class TodoList(db.Model):
 
 @app.route('/')
 def index():
-    return render_template('index.html', todos=Todo.query.order_by('id').all())
+    return redirect(url_for('get_list_todos', list_id=1))
+
+
+@app.route('/lists/<list_id>')
+def get_list_todos(list_id):
+    return render_template('index.html', lists=TodoList.query.all(), active_list=TodoList.query.get(list_id), todos=Todo.query.filter_by(list_id=list_id).order_by('id').all())
 
 
 @app.route('/todos/create', methods=['POST'])
@@ -74,7 +79,7 @@ def set_completed():
         db.session.rollback()
     finally:
         db.session.close()
-    return redirect(url_for('index'))
+    return render_template('index.html', todos=Todo.query.order_by('id').all())
 
 
 @app.route('/todos/delete', methods=['POST'])
@@ -88,7 +93,7 @@ def delete():
         db.session.rollback()
     finally:
         db.session.close()
-    return redirect(url_for('index'))
+    return render_template('index.html', todos=Todo.query.order_by('id').all())
 
 
 if __name__ == '__main__':
